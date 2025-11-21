@@ -1,6 +1,4 @@
--- ======================================================
 -- Library Reporting Queries (MySQL)
--- ======================================================
 
 -- 1. All books with authors and categories
 SELECT b.title, b.publication_year, c.name AS category,
