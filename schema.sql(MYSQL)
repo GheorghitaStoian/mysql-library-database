@@ -1,6 +1,4 @@
--- ======================================================
 -- Library Database (MySQL 8+ Version)
--- ======================================================
 
 DROP TABLE IF EXISTS loan_items;
 DROP TABLE IF EXISTS loans;
