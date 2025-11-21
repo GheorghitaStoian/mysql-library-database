@@ -1,0 +1,49 @@
+-- ======================================================
+-- Library Reporting Queries (MySQL)
+-- ======================================================
+
+-- 1. All books with authors and categories
+SELECT b.title, b.publication_year, c.name AS category,
+       CONCAT(a.first_name, ' ', a.last_name) AS author
+FROM books b
+JOIN categories c ON b.category_id = c.category_id
+JOIN book_authors ba ON b.book_id = ba.book_id
+JOIN authors a ON ba.author_id = a.author_id
+ORDER BY b.title;
+
+-- 2. Active borrowed books
+SELECT m.first_name, m.last_name, b.title, l.loan_date, l.due_date, l.status
+FROM loans l
+JOIN loan_items li ON l.loan_id = li.loan_id
+JOIN books b ON li.book_id = b.book_id
+JOIN members m ON l.member_id = m.member_id
+WHERE l.status IN ('ONGOING', 'LATE');
+
+-- 3. Active loans per member
+SELECT m.member_id, CONCAT(m.first_name, ' ', m.last_name) AS member,
+       COUNT(*) AS active_loans
+FROM loans l
+JOIN members m ON l.member_id = m.member_id
+WHERE l.status IN ('ONGOING', 'LATE')
+GROUP BY m.member_id
+ORDER BY active_loans DESC;
+
+-- 4. Most borrowed books
+SELECT b.title, COUNT(*) AS times_borrowed
+FROM loan_items li
+JOIN books b ON li.book_id = b.book_id
+GROUP BY b.book_id
+ORDER BY times_borrowed DESC;
+
+-- 5. Overdue members
+SELECT DISTINCT m.member_id, CONCAT(m.first_name, ' ', m.last_name) AS member, l.due_date
+FROM loans l
+JOIN members m ON l.member_id = m.member_id
+WHERE l.status = 'LATE';
+
+-- 6. Available copies per category
+SELECT c.name AS category, SUM(b.copies_available) AS available
+FROM books b
+JOIN categories c ON b.category_id = c.category_id
+GROUP BY c.category_id
+ORDER BY available DESC;
