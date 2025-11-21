@@ -1,6 +1,4 @@
--- ======================================================
 -- INSERT SAMPLE DATA (MySQL)
--- ======================================================
 
 INSERT INTO authors (first_name, last_name, birth_year, country) VALUES
 ('George', 'Orwell', 1903, 'United Kingdom'),
