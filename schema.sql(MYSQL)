@@ -1,0 +1,86 @@
+-- ======================================================
+-- Library Database (MySQL 8+ Version)
+-- ======================================================
+
+DROP TABLE IF EXISTS loan_items;
+DROP TABLE IF EXISTS loans;
+DROP TABLE IF EXISTS book_authors;
+DROP TABLE IF EXISTS books;
+DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS authors;
+DROP TABLE IF EXISTS members;
+
+-- AUTHORS
+CREATE TABLE authors (
+    author_id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    birth_year INT,
+    country VARCHAR(50)
+);
+
+-- CATEGORIES
+CREATE TABLE categories (
+    category_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    description VARCHAR(255)
+);
+
+-- BOOKS
+CREATE TABLE books (
+    book_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(150) NOT NULL,
+    isbn VARCHAR(20) UNIQUE,
+    publication_year INT,
+    copies_total INT NOT NULL DEFAULT 1,
+    copies_available INT NOT NULL DEFAULT 1,
+    category_id INT,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+-- BOOK_AUTHORS (Many-to-Many)
+CREATE TABLE book_authors (
+    book_id INT NOT NULL,
+    author_id INT NOT NULL,
+    PRIMARY KEY (book_id, author_id),
+    FOREIGN KEY (book_id) REFERENCES books(book_id) ON DELETE CASCADE,
+    FOREIGN KEY (author_id) REFERENCES authors(author_id) ON DELETE CASCADE
+);
+
+-- MEMBERS
+CREATE TABLE members (
+    member_id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    join_date DATE NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+-- LOANS
+CREATE TABLE loans (
+    loan_id INT AUTO_INCREMENT PRIMARY KEY,
+    member_id INT NOT NULL,
+    loan_date DATE NOT NULL,
+    due_date DATE NOT NULL,
+    return_date DATE,
+    status ENUM('ONGOING', 'RETURNED', 'LATE') NOT NULL,
+    FOREIGN KEY (member_id) REFERENCES members(member_id)
+);
+
+-- LOAN_ITEMS
+CREATE TABLE loan_items (
+    loan_item_id INT AUTO_INCREMENT PRIMARY KEY,
+    loan_id INT NOT NULL,
+    book_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 1,
+    FOREIGN KEY (loan_id) REFERENCES loans(loan_id) ON DELETE CASCADE,
+    FOREIGN KEY (book_id) REFERENCES books(book_id),
+    CHECK (quantity > 0)
+);
+
+-- INDEXES
+CREATE INDEX idx_books_title ON books(title);
+CREATE INDEX idx_books_category ON books(category_id);
+CREATE INDEX idx_loans_member ON loans(member_id);
+CREATE INDEX idx_loanitems_book ON loan_items(book_id);
